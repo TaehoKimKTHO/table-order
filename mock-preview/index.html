@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>테이블오더 서비스 - Mock Preview</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', -apple-system, sans-serif; background: #f0f2f5; color: #333; }
+    
+    /* Navigation */
+    .top-nav { background: #1a1a2e; color: #fff; padding: 12px 24px; display: flex; align-items: center; gap: 24px; position: sticky; top: 0; z-index: 100; }
+    .top-nav h1 { font-size: 18px; font-weight: 700; }
+    .nav-tabs { display: flex; gap: 4px; }
+    .nav-tab { padding: 8px 20px; border-radius: 8px 8px 0 0; cursor: pointer; font-size: 14px; font-weight: 500; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); border: none; transition: all 0.2s; }
+    .nav-tab.active { background: #f0f2f5; color: #1a1a2e; }
+    .nav-tab:hover:not(.active) { background: rgba(255,255,255,0.2); color: #fff; }
+    
+    /* View containers */
+    .view { display: none; padding: 20px; max-width: 1400px; margin: 0 auto; }
+    .view.active { display: block; }
+    
+    /* Customer view - tablet style */
+    .customer-frame { max-width: 768px; margin: 0 auto; background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); overflow: hidden; }
+    .customer-header { background: linear-gradient(135deg, #ff6b35, #f7931e); color: #fff; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
+    .customer-header h2 { font-size: 20px; }
+    .table-badge { background: rgba(255,255,255,0.25); padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+</style>
+</head>
+<body>
+  <!-- Top Navigation -->
+  <nav class="top-nav">
+    <h1>🍽️ 테이블오더</h1>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showView('customer')">고객 화면</button>
+      <button class="nav-tab" onclick="showView('admin-orders')">관리자 - 주문</button>
+      <button class="nav-tab" onclick="showView('admin-tables')">관리자 - 테이블</button>
+      <button class="nav-tab" onclick="showView('admin-menu')">관리자 - 메뉴관리</button>
+    </div>
+  </nav>
+
+  <!-- ==================== CUSTOMER VIEW ==================== -->
+  <div id="view-customer" class="view active">
+    <div class="customer-frame">
+      <div class="customer-header">
+        <h2>맛있는 식당</h2>
+        <span class="table-badge">테이블 3</span>
+      </div>
+
+      <!-- Customer Sub-tabs -->
+      <div class="customer-tabs">
+        <button class="c-tab active" onclick="showCustomerTab('menu')">🍴 메뉴</button>
+        <button class="c-tab" onclick="showCustomerTab('cart')">🛒 장바구니 <span class="cart-count">3</span></button>
+        <button class="c-tab" onclick="showCustomerTab('orders')">📋 주문내역</button>
+      </div>
+
+      <!-- MENU TAB -->
+      <div id="c-tab-menu" class="c-tab-content active">
+        <div class="category-bar">
+          <button class="cat-btn active">전체</button>
+          <button class="cat-btn">🔥 인기</button>
+          <button class="cat-btn">🥩 메인</button>
+          <button class="cat-btn">🥗 사이드</button>
+          <button class="cat-btn">🍺 음료</button>
+        </div>
+        <div class="menu-grid">
+          <div class="menu-card" onclick="addToCart(this)">
+            <div class="menu-img" style="background:#ffe0b2;">🍖</div>
+            <div class="menu-info">
+              <h4>양념치킨</h4>
+              <p class="menu-desc">바삭한 치킨에 달콤한 양념 소스</p>
+              <div class="menu-bottom"><span class="menu-price">18,000원</span><button class="add-btn">담기</button></div>
+            </div>
+          </div>
+          <div class="menu-card" onclick="addToCart(this)">
+            <div class="menu-img" style="background:#c8e6c9;">🥘</div>
+            <div class="menu-info">
+              <h4>김치찌개</h4>
+              <p class="menu-desc">깊은 맛의 전통 김치찌개</p>
+              <div class="menu-bottom"><span class="menu-price">9,000원</span><button class="add-btn">담기</button></div>
+            </div>
+          </div>
+          <div class="menu-card" onclick="addToCart(this)">
+            <div class="menu-img" style="background:#bbdefb;">🍜</div>
+            <div class="menu-info">
+              <h4>해물파전</h4>
+              <p class="menu-desc">바삭하고 쫄깃한 해물파전</p>
+              <div class="menu-bottom"><span class="menu-price">15,000원</span><button class="add-btn">담기</button></div>
+            </div>
+          </div>
+          <div class="menu-card" onclick="addToCart(this)">
+            <div class="menu-img" style="background:#f8bbd0;">🍗</div>
+            <div class="menu-info">
+              <h4>후라이드치킨</h4>
+              <p class="menu-desc">겉바속촉 오리지널 후라이드</p>
+              <div class="menu-bottom"><span class="menu-price">17,000원</span><button class="add-btn">담기</button></div>
+            </div>
+          </div>
+          <div class="menu-card" onclick="addToCart(this)">
+            <div class="menu-img" style="background:#d1c4e9;">🍺</div>
+            <div class="menu-info">
+              <h4>생맥주 500ml</h4>
+              <p class="menu-desc">시원한 생맥주 한 잔</p>
+              <div class="menu-bottom"><span class="menu-price">5,000원</span><button class="add-btn">담기</button></div>
+            </div>
+          </div>
+          <div class="menu-card" onclick="addToCart(this)">
+            <div class="menu-img" style="background:#fff9c4;">🥗</div>
+            <div class="menu-info">
+              <h4>시저샐러드</h4>
+              <p class="menu-desc">신선한 채소와 시저 드레싱</p>
+              <div class="menu-bottom"><span class="menu-price">8,000원</span><button class="add-btn">담기</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CART TAB -->
+      <div id="c-tab-cart" class="c-tab-content">
+        <div class="cart-section">
+          <div class="cart-item">
+            <div class="cart-item-info">
+              <h4>양념치킨</h4>
+              <p>18,000원</p>
+            </div>
+            <div class="qty-control">
+              <button class="qty-btn">−</button>
+              <span class="qty-num">2</span>
+              <button class="qty-btn">+</button>
+            </div>
+            <div class="cart-item-total">36,000원</div>
+            <button class="remove-btn">✕</button>
+          </div>
+          <div class="cart-item">
+            <div class="cart-item-info">
+              <h4>생맥주 500ml</h4>
+              <p>5,000원</p>
+            </div>
+            <div class="qty-control">
+              <button class="qty-btn">−</button>
+              <span class="qty-num">2</span>
+              <button class="qty-btn">+</button>
+            </div>
+            <div class="cart-item-total">10,000원</div>
+            <button class="remove-btn">✕</button>
+          </div>
+          <div class="cart-item">
+            <div class="cart-item-info">
+              <h4>시저샐러드</h4>
+              <p>8,000원</p>
+            </div>
+            <div class="qty-control">
+              <button class="qty-btn">−</button>
+              <span class="qty-num">1</span>
+              <button class="qty-btn">+</button>
+            </div>
+            <div class="cart-item-total">8,000원</div>
+            <button class="remove-btn">✕</button>
+          </div>
+        </div>
+        <div class="cart-summary">
+          <div class="cart-total-row">
+            <span>총 주문금액</span>
+            <span class="cart-total-price">54,000원</span>
+          </div>
+          <button class="order-btn" onclick="showOrderConfirm()">주문하기</button>
+          <button class="clear-cart-btn" onclick="alert('장바구니를 비웁니다')">장바구니 비우기</button>
+        </div>
+      </div>
+
+      <!-- ORDER CONFIRM MODAL -->
+      <div id="order-confirm-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-box">
+          <h3>주문 확인</h3>
+          <div class="confirm-items">
+            <div class="confirm-row"><span>양념치킨 x2</span><span>36,000원</span></div>
+            <div class="confirm-row"><span>생맥주 500ml x2</span><span>10,000원</span></div>
+            <div class="confirm-row"><span>시저샐러드 x1</span><span>8,000원</span></div>
+            <hr>
+            <div class="confirm-row total"><span>합계</span><span>54,000원</span></div>
+          </div>
+          <div class="modal-actions">
+            <button class="modal-cancel" onclick="hideOrderConfirm()">취소</button>
+            <button class="modal-confirm" onclick="placeOrder()">주문 확정</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ORDER SUCCESS MODAL -->
+      <div id="order-success-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-box success-box">
+          <div class="success-icon">✅</div>
+          <h3>주문이 완료되었습니다!</h3>
+          <p class="order-number">주문번호: #ORD-20260309-003</p>
+          <p class="redirect-msg">5초 후 메뉴 화면으로 이동합니다...</p>
+          <div class="countdown-bar"><div class="countdown-fill"></div></div>
+        </div>
+      </div>
+
+      <!-- ORDERS TAB -->
+      <div id="c-tab-orders" class="c-tab-content">
+        <div class="orders-list">
+          <div class="order-card">
+            <div class="order-header">
+              <span class="order-num">#ORD-20260309-003</span>
+              <span class="order-status status-pending">⏳ 대기중</span>
+            </div>
+            <div class="order-time">2026-03-09 12:35</div>
+            <div class="order-items-list">
+              <div class="order-item-row"><span>양념치킨 x2</span><span>36,000원</span></div>
+              <div class="order-item-row"><span>생맥주 500ml x2</span><span>10,000원</span></div>
+              <div class="order-item-row"><span>시저샐러드 x1</span><span>8,000원</span></div>
+            </div>
+            <div class="order-total">합계: 54,000원</div>
+          </div>
+          <div class="order-card">
+            <div class="order-header">
+              <span class="order-num">#ORD-20260309-002</span>
+              <span class="order-status status-preparing">🔥 준비중</span>
+            </div>
+            <div class="order-time">2026-03-09 12:10</div>
+            <div class="order-items-list">
+              <div class="order-item-row"><span>김치찌개 x1</span><span>9,000원</span></div>
+              <div class="order-item-row"><span>해물파전 x1</span><span>15,000원</span></div>
+            </div>
+            <div class="order-total">합계: 24,000원</div>
+          </div>
+          <div class="order-card">
+            <div class="order-header">
+              <span class="order-num">#ORD-20260309-001</span>
+              <span class="order-status status-completed">✅ 완료</span>
+            </div>
+            <div class="order-time">2026-03-09 11:45</div>
+            <div class="order-items-list">
+              <div class="order-item-row"><span>후라이드치킨 x1</span><span>17,000원</span></div>
+              <div class="order-item-row"><span>생맥주 500ml x1</span><span>5,000원</span></div>
+            </div>
+            <div class="order-total">합계: 22,000원</div>
+          </div>
+        </div>
+      </div>
+    </div><!-- end customer-frame -->
+  </div><!-- end view-customer -->
+
+  <!-- ==================== ADMIN ORDERS VIEW ==================== -->
+  <div id="view-admin-orders" class="view">
+    <div class="admin-header-bar">
+      <h2>📊 실시간 주문 대시보드</h2>
+      <div class="admin-header-right">
+        <select class="filter-select">
+          <option>전체 테이블</option>
+          <option>테이블 1</option>
+          <option>테이블 2</option>
+          <option>테이블 3</option>
+          <option>테이블 4</option>
+          <option>테이블 5</option>
+        </select>
+        <span class="live-indicator">🔴 LIVE</span>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <!-- Table 1 -->
+      <div class="table-card">
+        <div class="table-card-header">
+          <span class="table-num">테이블 1</span>
+          <span class="table-total">총 32,000원</span>
+        </div>
+        <div class="table-orders">
+          <div class="admin-order new-order">
+            <div class="admin-order-top">
+              <span class="admin-order-num">#ORD-005</span>
+              <span class="admin-order-time">12:42</span>
+            </div>
+            <div class="admin-order-items">김치찌개 x1, 생맥주 x2</div>
+            <div class="admin-order-bottom">
+              <span class="admin-order-price">19,000원</span>
+              <div class="status-btns">
+                <button class="s-btn s-pending active">대기</button>
+                <button class="s-btn s-preparing" onclick="this.classList.add('active');this.previousElementSibling.classList.remove('active')">준비</button>
+                <button class="s-btn s-completed" onclick="this.classList.add('active');this.previousElementSibling.classList.remove('active');this.previousElementSibling.previousElementSibling.classList.remove('active')">완료</button>
+              </div>
+            </div>
+          </div>
+          <div class="admin-order">
+            <div class="admin-order-top">
+              <span class="admin-order-num">#ORD-002</span>
+              <span class="admin-order-time">11:58</span>
+            </div>
+            <div class="admin-order-items">후라이드치킨 x1</div>
+            <div class="admin-order-bottom">
+              <span class="admin-order-price">13,000원</span>
+              <div class="status-btns">
+                <button class="s-btn s-pending">대기</button>
+                <button class="s-btn s-preparing active">준비</button>
+                <button class="s-btn s-completed">완료</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="table-card-actions">
+          <button class="tc-action" onclick="alert('테이블 1 이용 완료 처리')">이용 완료</button>
+          <button class="tc-action" onclick="alert('과거 내역 조회')">과거 내역</button>
+        </div>
+      </div>
+
+      <!-- Table 2 -->
+      <div class="table-card">
+        <div class="table-card-header">
+          <span class="table-num">테이블 2</span>
+          <span class="table-total">총 54,000원</span>
+        </div>
+        <div class="table-orders">
+          <div class="admin-order">
+            <div class="admin-order-top">
+              <span class="admin-order-num">#ORD-004</span>
+              <span class="admin-order-time">12:35</span>
+            </div>
+            <div class="admin-order-items">양념치킨 x2, 생맥주 x2, 샐러드 x1</div>
+            <div class="admin-order-bottom">
+              <span class="admin-order-price">54,000원</span>
+              <div class="status-btns">
+                <button class="s-btn s-pending active">대기</button>
+                <button class="s-btn s-preparing">준비</button>
+                <button class="s-btn s-completed">완료</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="table-card-actions">
+          <button class="tc-action">이용 완료</button>
+          <button class="tc-action">과거 내역</button>
+        </div>
+      </div>
+
+      <!-- Table 3 -->
+      <div class="table-card">
+        <div class="table-card-header">
+          <span class="table-num">테이블 3</span>
+          <span class="table-total">총 22,000원</span>
+        </div>
+        <div class="table-orders">
+          <div class="admin-order">
+            <div class="admin-order-top">
+              <span class="admin-order-num">#ORD-003</span>
+              <span class="admin-order-time">12:20</span>
+            </div>
+            <div class="admin-order-items">해물파전 x1, 생맥주 x1</div>
+            <div class="admin-order-bottom">
+              <span class="admin-order-price">20,000원</span>
+              <div class="status-btns">
+                <button class="s-btn s-pending">대기</button>
+                <button class="s-btn s-preparing">준비</button>
+                <button class="s-btn s-completed active">완료</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="table-card-actions">
+          <button class="tc-action">이용 완료</button>
+          <button class="tc-action">과거 내역</button>
+        </div>
+      </div>
+
+      <!-- Table 4 - Empty -->
+      <div class="table-card empty-table">
+        <div class="table-card-header">
+          <span class="table-num">테이블 4</span>
+          <span class="table-total">비어있음</span>
+        </div>
+        <div class="table-orders">
+          <div class="empty-msg">현재 주문 없음</div>
+        </div>
+        <div class="table-card-actions">
+          <button class="tc-action" disabled>이용 완료</button>
+          <button class="tc-action">과거 내역</button>
+        </div>
+      </div>
+
+      <!-- Table 5 - Empty -->
+      <div class="table-card empty-table">
+        <div class="table-card-header">
+          <span class="table-num">테이블 5</span>
+          <span class="table-total">비어있음</span>
+        </div>
+        <div class="table-orders">
+          <div class="empty-msg">현재 주문 없음</div>
+        </div>
+        <div class="table-card-actions">
+          <button class="tc-action" disabled>이용 완료</button>
+          <button class="tc-action">과거 내역</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ADMIN TABLES VIEW ==================== -->
+  <div id="view-admin-tables" class="view">
+    <div class="admin-header-bar">
+      <h2>🪑 테이블 관리</h2>
+      <button class="primary-btn" onclick="alert('새 테이블 등록 폼')">+ 테이블 추가</button>
+    </div>
+
+    <div class="tables-grid">
+      <div class="manage-table-card">
+        <div class="mt-header">
+          <span class="mt-number">테이블 1</span>
+          <span class="mt-status occupied">사용중</span>
+        </div>
+        <div class="mt-info">
+          <div class="mt-row"><span>현재 세션</span><span>활성</span></div>
+          <div class="mt-row"><span>주문 수</span><span>2건</span></div>
+          <div class="mt-row"><span>총 주문액</span><span>32,000원</span></div>
+          <div class="mt-row"><span>세션 시작</span><span>11:58</span></div>
+        </div>
+        <div class="mt-actions">
+          <button class="mt-btn edit" onclick="alert('테이블 1 수정')">수정</button>
+          <button class="mt-btn complete" onclick="showCompleteConfirm(1)">이용 완료</button>
+          <button class="mt-btn history" onclick="alert('과거 내역 조회')">과거 내역</button>
+        </div>
+      </div>
+
+      <div class="manage-table-card">
+        <div class="mt-header">
+          <span class="mt-number">테이블 2</span>
+          <span class="mt-status occupied">사용중</span>
+        </div>
+        <div class="mt-info">
+          <div class="mt-row"><span>현재 세션</span><span>활성</span></div>
+          <div class="mt-row"><span>주문 수</span><span>1건</span></div>
+          <div class="mt-row"><span>총 주문액</span><span>54,000원</span></div>
+          <div class="mt-row"><span>세션 시작</span><span>12:35</span></div>
+        </div>
+        <div class="mt-actions">
+          <button class="mt-btn edit">수정</button>
+          <button class="mt-btn complete" onclick="showCompleteConfirm(2)">이용 완료</button>
+          <button class="mt-btn history">과거 내역</button>
+        </div>
+      </div>
+
+      <div class="manage-table-card">
+        <div class="mt-header">
+          <span class="mt-number">테이블 3</span>
+          <span class="mt-status occupied">사용중</span>
+        </div>
+        <div class="mt-info">
+          <div class="mt-row"><span>현재 세션</span><span>활성</span></div>
+          <div class="mt-row"><span>주문 수</span><span>1건</span></div>
+          <div class="mt-row"><span>총 주문액</span><span>22,000원</span></div>
+          <div class="mt-row"><span>세션 시작</span><span>12:20</span></div>
+        </div>
+        <div class="mt-actions">
+          <button class="mt-btn edit">수정</button>
+          <button class="mt-btn complete" onclick="showCompleteConfirm(3)">이용 완료</button>
+          <button class="mt-btn history">과거 내역</button>
+        </div>
+      </div>
+
+      <div class="manage-table-card">
+        <div class="mt-header">
+          <span class="mt-number">테이블 4</span>
+          <span class="mt-status available">비어있음</span>
+        </div>
+        <div class="mt-info">
+          <div class="mt-row"><span>현재 세션</span><span>없음</span></div>
+          <div class="mt-row"><span>주문 수</span><span>0건</span></div>
+          <div class="mt-row"><span>총 주문액</span><span>0원</span></div>
+          <div class="mt-row"><span>마지막 이용</span><span>11:30</span></div>
+        </div>
+        <div class="mt-actions">
+          <button class="mt-btn edit">수정</button>
+          <button class="mt-btn complete" disabled>이용 완료</button>
+          <button class="mt-btn history">과거 내역</button>
+        </div>
+      </div>
+
+      <div class="manage-table-card">
+        <div class="mt-header">
+          <span class="mt-number">테이블 5</span>
+          <span class="mt-status available">비어있음</span>
+        </div>
+        <div class="mt-info">
+          <div class="mt-row"><span>현재 세션</span><span>없음</span></div>
+          <div class="mt-row"><span>주문 수</span><span>0건</span></div>
+          <div class="mt-row"><span>총 주문액</span><span>0원</span></div>
+          <div class="mt-row"><span>마지막 이용</span><span>10:15</span></div>
+        </div>
+        <div class="mt-actions">
+          <button class="mt-btn edit">수정</button>
+          <button class="mt-btn complete" disabled>이용 완료</button>
+          <button class="mt-btn history">과거 내역</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Complete Confirm Modal -->
+    <div id="complete-confirm-modal" class="modal-overlay" style="display:none;">
+      <div class="modal-box">
+        <h3>⚠️ 이용 완료 확인</h3>
+        <p style="margin:12px 0;color:#666;">테이블 <span id="complete-table-num"></span>의 이용을 완료하시겠습니까?</p>
+        <p style="font-size:13px;color:#999;">현재 주문 내역이 과거 이력으로 이동되고, 테이블이 초기화됩니다.</p>
+        <div class="modal-actions">
+          <button class="modal-cancel" onclick="hideCompleteConfirm()">취소</button>
+          <button class="modal-confirm" onclick="hideCompleteConfirm();alert('이용 완료 처리되었습니다')">확인</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ADMIN MENU VIEW ==================== -->
+  <div id="view-admin-menu" class="view">
+    <div class="admin-header-bar">
+      <h2>📝 메뉴 관리</h2>
+      <div class="admin-header-right">
+        <button class="secondary-btn" onclick="alert('카테고리 관리')">카테고리 관리</button>
+        <button class="primary-btn" onclick="toggleMenuForm()">+ 메뉴 등록</button>
+      </div>
+    </div>
+
+    <!-- Menu Registration Form (hidden by default) -->
+    <div id="menu-form" class="menu-form" style="display:none;">
+      <h3>메뉴 등록</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>메뉴명 *</label>
+          <input type="text" placeholder="메뉴 이름 입력">
+        </div>
+        <div class="form-group">
+          <label>가격 (원) *</label>
+          <input type="number" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label>카테고리 *</label>
+          <select>
+            <option>카테고리 선택</option>
+            <option>메인</option>
+            <option>사이드</option>
+            <option>음료</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>이미지</label>
+          <input type="file" accept="image/*">
+        </div>
+        <div class="form-group full-width">
+          <label>설명</label>
+          <textarea placeholder="메뉴 설명 입력" rows="2"></textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="secondary-btn" onclick="toggleMenuForm()">취소</button>
+        <button class="primary-btn" onclick="toggleMenuForm();alert('메뉴가 등록되었습니다')">등록</button>
+      </div>
+    </div>
+
+    <!-- Category Tabs -->
+    <div class="admin-cat-tabs">
+      <button class="admin-cat active">전체 (6)</button>
+      <button class="admin-cat">메인 (3)</button>
+      <button class="admin-cat">사이드 (2)</button>
+      <button class="admin-cat">음료 (1)</button>
+    </div>
+
+    <!-- Menu List -->
+    <div class="admin-menu-list">
+      <div class="admin-menu-item">
+        <div class="ami-drag">⠿</div>
+        <div class="ami-img" style="background:#ffe0b2;">🍖</div>
+        <div class="ami-info">
+          <h4>양념치킨</h4>
+          <p>바삭한 치킨에 달콤한 양념 소스</p>
+          <span class="ami-cat">메인</span>
+        </div>
+        <div class="ami-price">18,000원</div>
+        <div class="ami-actions">
+          <button class="ami-btn edit" onclick="alert('메뉴 수정')">수정</button>
+          <button class="ami-btn delete" onclick="alert('메뉴 삭제')">삭제</button>
+        </div>
+      </div>
+      <div class="admin-menu-item">
+        <div class="ami-drag">⠿</div>
+        <div class="ami-img" style="background:#c8e6c9;">🥘</div>
+        <div class="ami-info">
+          <h4>김치찌개</h4>
+          <p>깊은 맛의 전통 김치찌개</p>
+          <span class="ami-cat">메인</span>
+        </div>
+        <div class="ami-price">9,000원</div>
+        <div class="ami-actions">
+          <button class="ami-btn edit">수정</button>
+          <button class="ami-btn delete">삭제</button>
+        </div>
+      </div>
+      <div class="admin-menu-item">
+        <div class="ami-drag">⠿</div>
+        <div class="ami-img" style="background:#bbdefb;">🍜</div>
+        <div class="ami-info">
+          <h4>해물파전</h4>
+          <p>바삭하고 쫄깃한 해물파전</p>
+          <span class="ami-cat">사이드</span>
+        </div>
+        <div class="ami-price">15,000원</div>
+        <div class="ami-actions">
+          <button class="ami-btn edit">수정</button>
+          <button class="ami-btn delete">삭제</button>
+        </div>
+      </div>
+      <div class="admin-menu-item">
+        <div class="ami-drag">⠿</div>
+        <div class="ami-img" style="background:#f8bbd0;">🍗</div>
+        <div class="ami-info">
+          <h4>후라이드치킨</h4>
+          <p>겉바속촉 오리지널 후라이드</p>
+          <span class="ami-cat">메인</span>
+        </div>
+        <div class="ami-price">17,000원</div>
+        <div class="ami-actions">
+          <button class="ami-btn edit">수정</button>
+          <button class="ami-btn delete">삭제</button>
+        </div>
+      </div>
+      <div class="admin-menu-item">
+        <div class="ami-drag">⠿</div>
+        <div class="ami-img" style="background:#d1c4e9;">🍺</div>
+        <div class="ami-info">
+          <h4>생맥주 500ml</h4>
+          <p>시원한 생맥주 한 잔</p>
+          <span class="ami-cat">음료</span>
+        </div>
+        <div class="ami-price">5,000원</div>
+        <div class="ami-actions">
+          <button class="ami-btn edit">수정</button>
+          <button class="ami-btn delete">삭제</button>
+        </div>
+      </div>
+      <div class="admin-menu-item">
+        <div class="ami-drag">⠿</div>
+        <div class="ami-img" style="background:#fff9c4;">🥗</div>
+        <div class="ami-info">
+          <h4>시저샐러드</h4>
+          <p>신선한 채소와 시저 드레싱</p>
+          <span class="ami-cat">사이드</span>
+        </div>
+        <div class="ami-price">8,000원</div>
+        <div class="ami-actions">
+          <button class="ami-btn edit">수정</button>
+          <button class="ami-btn delete">삭제</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    /* Customer Tabs */
+    .customer-tabs { display: flex; border-bottom: 2px solid #eee; background: #fafafa; }
+    .c-tab { flex: 1; padding: 14px; border: none; background: none; font-size: 15px; cursor: pointer; color: #888; font-weight: 500; transition: all 0.2s; position: relative; }
+    .c-tab.active { color: #ff6b35; }
+    .c-tab.active::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 3px; background: #ff6b35; }
+    .cart-count { background: #ff6b35; color: #fff; border-radius: 10px; padding: 1px 7px; font-size: 12px; margin-left: 4px; }
+    .c-tab-content { display: none; }
+    .c-tab-content.active { display: block; }
+
+    /* Category Bar */
+    .category-bar { display: flex; gap: 8px; padding: 12px 16px; overflow-x: auto; background: #fff; border-bottom: 1px solid #eee; }
+    .cat-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: #fff; font-size: 13px; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+    .cat-btn.active { background: #ff6b35; color: #fff; border-color: #ff6b35; }
+
+    /* Menu Grid */
+    .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 16px; }
+    .menu-card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 1px solid #f0f0f0; }
+    .menu-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+    .menu-img { height: 100px; display: flex; align-items: center; justify-content: center; font-size: 40px; }
+    .menu-info { padding: 12px; }
+    .menu-info h4 { font-size: 15px; margin-bottom: 4px; }
+    .menu-desc { font-size: 12px; color: #888; margin-bottom: 8px; line-height: 1.4; }
+    .menu-bottom { display: flex; justify-content: space-between; align-items: center; }
+    .menu-price { font-size: 16px; font-weight: 700; color: #ff6b35; }
+    .add-btn { padding: 6px 14px; border-radius: 6px; border: none; background: #ff6b35; color: #fff; font-size: 13px; cursor: pointer; min-width: 44px; min-height: 44px; }
+
+    /* Cart */
+    .cart-section { padding: 16px; }
+    .cart-item { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid #f0f0f0; }
+    .cart-item-info h4 { font-size: 14px; }
+    .cart-item-info p { font-size: 12px; color: #888; }
+    .cart-item-info { flex: 1; }
+    .qty-control { display: flex; align-items: center; gap: 8px; }
+    .qty-btn { width: 32px; height: 32px; border-radius: 50%; border: 1px solid #ddd; background: #fff; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .qty-num { font-size: 16px; font-weight: 600; min-width: 20px; text-align: center; }
+    .cart-item-total { font-weight: 600; font-size: 14px; min-width: 80px; text-align: right; }
+    .remove-btn { border: none; background: none; color: #ccc; font-size: 18px; cursor: pointer; padding: 4px; }
+    .remove-btn:hover { color: #e53935; }
+    .cart-summary { padding: 16px; border-top: 2px solid #eee; }
+    .cart-total-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .cart-total-price { font-size: 22px; font-weight: 700; color: #ff6b35; }
+    .order-btn { width: 100%; padding: 16px; border: none; border-radius: 12px; background: #ff6b35; color: #fff; font-size: 18px; font-weight: 700; cursor: pointer; min-height: 56px; }
+    .clear-cart-btn { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: #fff; color: #888; font-size: 14px; cursor: pointer; margin-top: 8px; }
+
+    /* Modal */
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 200; }
+    .modal-box { background: #fff; border-radius: 16px; padding: 24px; max-width: 400px; width: 90%; }
+    .modal-box h3 { font-size: 18px; margin-bottom: 16px; }
+    .confirm-items { margin-bottom: 16px; }
+    .confirm-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; }
+    .confirm-row.total { font-weight: 700; font-size: 16px; color: #ff6b35; }
+    .confirm-row hr { border: none; border-top: 1px solid #eee; }
+    .modal-actions { display: flex; gap: 8px; }
+    .modal-cancel { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: #fff; font-size: 15px; cursor: pointer; }
+    .modal-confirm { flex: 1; padding: 12px; border: none; border-radius: 8px; background: #ff6b35; color: #fff; font-size: 15px; cursor: pointer; font-weight: 600; }
+    .success-box { text-align: center; }
+    .success-icon { font-size: 48px; margin-bottom: 12px; }
+    .order-number { font-size: 20px; font-weight: 700; color: #ff6b35; margin: 8px 0; }
+    .redirect-msg { font-size: 13px; color: #888; margin-bottom: 16px; }
+    .countdown-bar { height: 4px; background: #eee; border-radius: 2px; overflow: hidden; }
+    .countdown-fill { height: 100%; width: 100%; background: #ff6b35; animation: countdown 5s linear forwards; }
+    @keyframes countdown { from { width: 100%; } to { width: 0%; } }
+</style>
+
+  <style>
+    /* Orders List (Customer) */
+    .orders-list { padding: 16px; }
+    .order-card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; border: 1px solid #f0f0f0; }
+    .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .order-num { font-weight: 700; font-size: 14px; }
+    .order-status { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .status-pending { background: #fff3e0; color: #e65100; }
+    .status-preparing { background: #e3f2fd; color: #1565c0; }
+    .status-completed { background: #e8f5e9; color: #2e7d32; }
+    .order-time { font-size: 12px; color: #999; margin-bottom: 10px; }
+    .order-items-list { border-top: 1px solid #f5f5f5; padding-top: 8px; }
+    .order-item-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; color: #555; }
+    .order-total { text-align: right; font-weight: 700; margin-top: 8px; padding-top: 8px; border-top: 1px solid #f5f5f5; color: #ff6b35; }
+
+    /* Admin Header */
+    .admin-header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .admin-header-bar h2 { font-size: 22px; }
+    .admin-header-right { display: flex; gap: 12px; align-items: center; }
+    .filter-select { padding: 8px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
+    .live-indicator { background: #ffebee; color: #c62828; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+    .primary-btn { padding: 10px 20px; border: none; border-radius: 8px; background: #1a73e8; color: #fff; font-size: 14px; cursor: pointer; font-weight: 600; }
+    .secondary-btn { padding: 10px 20px; border: 1px solid #ddd; border-radius: 8px; background: #fff; font-size: 14px; cursor: pointer; }
+
+    /* Dashboard Grid */
+    .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+    .table-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden; border: 1px solid #e8e8e8; }
+    .table-card-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #f8f9fa; border-bottom: 1px solid #eee; }
+    .table-num { font-weight: 700; font-size: 16px; }
+    .table-total { font-weight: 600; color: #ff6b35; font-size: 14px; }
+    .table-orders { padding: 12px; min-height: 80px; }
+    .empty-msg { text-align: center; color: #ccc; padding: 20px; font-size: 14px; }
+    .empty-table { opacity: 0.6; }
+
+    /* Admin Order Items */
+    .admin-order { padding: 10px; border-radius: 8px; background: #f8f9fa; margin-bottom: 8px; border-left: 3px solid #ddd; }
+    .admin-order.new-order { border-left-color: #ff6b35; background: #fff8f0; animation: highlight 2s ease-out; }
+    @keyframes highlight { 0% { background: #ffe0b2; } 100% { background: #fff8f0; } }
+    .admin-order-top { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; }
+    .admin-order-num { font-weight: 600; }
+    .admin-order-time { color: #999; }
+    .admin-order-items { font-size: 13px; color: #555; margin-bottom: 8px; }
+    .admin-order-bottom { display: flex; justify-content: space-between; align-items: center; }
+    .admin-order-price { font-weight: 600; font-size: 14px; }
+    .status-btns { display: flex; gap: 4px; }
+    .s-btn { padding: 4px 10px; border-radius: 4px; border: 1px solid #ddd; background: #fff; font-size: 11px; cursor: pointer; }
+    .s-btn.active.s-pending { background: #fff3e0; border-color: #e65100; color: #e65100; }
+    .s-btn.active.s-preparing { background: #e3f2fd; border-color: #1565c0; color: #1565c0; }
+    .s-btn.active.s-completed { background: #e8f5e9; border-color: #2e7d32; color: #2e7d32; }
+    .table-card-actions { display: flex; gap: 8px; padding: 12px; border-top: 1px solid #eee; }
+    .tc-action { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 6px; background: #fff; font-size: 13px; cursor: pointer; }
+    .tc-action:disabled { opacity: 0.4; cursor: not-allowed; }
+    .tc-action:hover:not(:disabled) { background: #f5f5f5; }
+</style>
+
+  <style>
+    /* Tables Management */
+    .tables-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .manage-table-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden; border: 1px solid #e8e8e8; }
+    .mt-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid #eee; }
+    .mt-number { font-weight: 700; font-size: 16px; }
+    .mt-status { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .mt-status.occupied { background: #e3f2fd; color: #1565c0; }
+    .mt-status.available { background: #e8f5e9; color: #2e7d32; }
+    .mt-info { padding: 12px 16px; }
+    .mt-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; color: #555; border-bottom: 1px solid #f8f8f8; }
+    .mt-actions { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid #eee; }
+    .mt-btn { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 6px; background: #fff; font-size: 13px; cursor: pointer; text-align: center; }
+    .mt-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .mt-btn.edit:hover { background: #e3f2fd; border-color: #1565c0; color: #1565c0; }
+    .mt-btn.complete:hover:not(:disabled) { background: #fff3e0; border-color: #e65100; color: #e65100; }
+    .mt-btn.history:hover { background: #f3e5f5; border-color: #7b1fa2; color: #7b1fa2; }
+
+    /* Admin Menu Management */
+    .admin-cat-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+    .admin-cat { padding: 8px 16px; border-radius: 8px; border: 1px solid #ddd; background: #fff; font-size: 13px; cursor: pointer; }
+    .admin-cat.active { background: #1a73e8; color: #fff; border-color: #1a73e8; }
+    .admin-menu-list { display: flex; flex-direction: column; gap: 8px; }
+    .admin-menu-item { display: flex; align-items: center; gap: 12px; background: #fff; padding: 12px 16px; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); border: 1px solid #f0f0f0; }
+    .ami-drag { color: #ccc; cursor: grab; font-size: 18px; }
+    .ami-img { width: 48px; height: 48px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+    .ami-info { flex: 1; }
+    .ami-info h4 { font-size: 14px; margin-bottom: 2px; }
+    .ami-info p { font-size: 12px; color: #888; }
+    .ami-cat { font-size: 11px; background: #f0f0f0; padding: 2px 8px; border-radius: 4px; color: #666; }
+    .ami-price { font-weight: 700; font-size: 15px; color: #333; min-width: 80px; text-align: right; }
+    .ami-actions { display: flex; gap: 6px; }
+    .ami-btn { padding: 6px 12px; border-radius: 6px; border: 1px solid #ddd; background: #fff; font-size: 12px; cursor: pointer; }
+    .ami-btn.edit:hover { background: #e3f2fd; border-color: #1565c0; color: #1565c0; }
+    .ami-btn.delete:hover { background: #ffebee; border-color: #c62828; color: #c62828; }
+
+    /* Menu Form */
+    .menu-form { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid #e8e8e8; }
+    .menu-form h3 { margin-bottom: 16px; font-size: 16px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-group.full-width { grid-column: 1 / -1; }
+    .form-group label { font-size: 13px; font-weight: 600; color: #555; }
+    .form-group input, .form-group select, .form-group textarea { padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
+    .form-actions { display: flex; gap: 8px; justify-content: flex-end; }
+  </style>
+
+  <script>
+    // View switching
+    function showView(view) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('view-' + view).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    // Customer tab switching
+    function showCustomerTab(tab) {
+      document.querySelectorAll('.c-tab-content').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.c-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('c-tab-' + tab).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    // Cart interaction
+    function addToCart(el) {
+      const name = el.querySelector('h4').textContent;
+      alert(name + '이(가) 장바구니에 추가되었습니다');
+    }
+
+    // Order confirm modal
+    function showOrderConfirm() {
+      document.getElementById('order-confirm-modal').style.display = 'flex';
+    }
+    function hideOrderConfirm() {
+      document.getElementById('order-confirm-modal').style.display = 'none';
+    }
+
+    // Place order
+    function placeOrder() {
+      hideOrderConfirm();
+      document.getElementById('order-success-modal').style.display = 'flex';
+      setTimeout(() => {
+        document.getElementById('order-success-modal').style.display = 'none';
+        showCustomerTab('menu');
+        document.querySelectorAll('.c-tab')[0].classList.add('active');
+        document.querySelectorAll('.c-tab')[1].classList.remove('active');
+      }, 5000);
+    }
+
+    // Table complete confirm
+    function showCompleteConfirm(num) {
+      document.getElementById('complete-table-num').textContent = num;
+      document.getElementById('complete-confirm-modal').style.display = 'flex';
+    }
+    function hideCompleteConfirm() {
+      document.getElementById('complete-confirm-modal').style.display = 'none';
+    }
+
+    // Menu form toggle
+    function toggleMenuForm() {
+      const form = document.getElementById('menu-form');
+      form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    }
+  </script>
+</body>
+</html>
