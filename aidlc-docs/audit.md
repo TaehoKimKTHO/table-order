@@ -253,3 +253,14 @@ Updated: unit-of-work.md, unit-of-work-dependency.md, unit-of-work-story-map.md,
 **Context**: CONSTRUCTION - Functional Design (Unit 1). Password 제거 반영 완료.
 
 ---
+
+## CONSTRUCTION - Functional Design (Unit 2: 주문 처리)
+**Timestamp**: 2026-03-09T12:00:00Z
+**User Input**: "Unit2. 주문 처리 유닛에 대해 아래 내용을 숙지해서 기능 설계를 진행해줘. 도메인 모델 설계: 비즈니스 엔티티 정의 (Order, Menu, Table 등) 엔티티 간 관계 설정 (일대다, 다대다) 각 엔티티의 속성과 제약조건 정의 비즈니스 로직 모델링: 핵심 비즈니스 플로우 설계 (주문 생성, 상태 변경) 데이터 흐름 정의 엔티티 간 상호작용 명세 비즈니스 규칙 정의: 검증 규칙 (주문 최소 금액, 메뉴 재고) 상태 전이 규칙 (주문 상태 변경 조건) 권한 규칙 (누가 무엇을 할 수 있는가)"
+**AI Response**: Unit 2 기능 설계 문서 3개 생성 완료:
+- domain-entities.md: Order/OrderItem 엔티티 상세 정의, 참조 엔티티, 관계도, 주문번호 생성 규칙, 스냅샷 전략
+- business-logic-model.md: 8개 메서드 비즈니스 플로우, 데이터 흐름, 엔티티 상호작용, 트랜잭션 경계, 에러 처리
+- business-rules.md: 검증 규칙, 상태 전이 규칙, 권한 규칙, 데이터 무결성, 삭제 규칙, 에러 코드
+**Context**: Unit 2 주문 처리 유닛 기능 설계 (Functional Design) 완료
+
+---
