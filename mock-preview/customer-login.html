@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>매장 설정</title>
+    <style>
+        :root {
+            --primary: #FF3B30;
+            --bg: #000000;
+            --surface: rgba(28, 28, 30, 0.8);
+            --text: #FFFFFF;
+            --text-muted: #8E8E93;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Malgun Gothic", sans-serif;
+            background-color: var(--bg);
+            background-image: radial-gradient(circle at 50% 120%, rgba(255, 59, 48, 0.1) 0%, rgba(0, 0, 0, 1) 70%);
+            color: var(--text);
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .setup-card {
+            background: var(--surface);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 48px;
+            border-radius: 32px;
+            border: 1px solid var(--border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideUpFade {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .icon {
+            font-size: 48px;
+            margin-bottom: 24px;
+            color: var(--primary);
+            display: inline-block;
+            filter: drop-shadow(0 0 10px rgba(255, 59, 48, 0.5));
+        }
+
+        h1 {
+            margin: 0 0 12px 0;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        p {
+            color: var(--text-muted);
+            margin: 0 0 40px 0;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .input-group {
+            text-align: left;
+            margin-bottom: 32px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #D1D1D6;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        input {
+            width: 100%;
+            padding: 18px 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            color: var(--text);
+            font-size: 20px;
+            font-weight: 800;
+            box-sizing: border-box;
+            outline: none;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(255, 59, 48, 0.15);
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        button {
+            width: 100%;
+            padding: 20px;
+            background: var(--text);
+            color: var(--bg);
+            border: none;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 255, 255, 0.15);
+        }
+
+        button:active {
+            transform: scale(0.97);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="setup-card">
+        <div class="icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+                <line x1="12" y1="18" x2="12.01" y2="18"></line>
+            </svg>
+        </div>
+        <h1>장비 초기 설정</h1>
+        <p>관리자님, 이 기기를 배치할<br>테이블 번호를 입력해주세요.</p>
+
+        <form onsubmit="handleInit(event)">
+            <div class="input-group">
+                <input type="number" id="tableNo" placeholder="예: 12" required value="12" min="1" max="999">
+            </div>
+
+            <button type="submit">영업 시작 모드</button>
+        </form>
+    </div>
+
+    <script>
+        // 초기화 시 이전 기록 삭제
+        localStorage.removeItem('table_orders');
+        sessionStorage.removeItem('tableNo');
+
+        function handleInit(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const tableNo = document.getElementById('tableNo').value;
+
+            btn.innerHTML = '설정 저장 중...';
+            btn.disabled = true;
+            btn.style.transform = 'scale(0.98)';
+
+            setTimeout(() => {
+                sessionStorage.setItem('tableNo', tableNo);
+                window.location.href = 'customer-menu.html';
+            }, 800);
+        }
+    </script>
+</body>
+
+</html>
