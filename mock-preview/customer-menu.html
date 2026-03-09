@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>테이블 메뉴 오더</title>
+    <style>
+        :root {
+            --primary: #FF3B30;
+            --primary-glow: rgba(255, 59, 48, 0.4);
+            --bg: #000000;
+            --surface: #1C1C1E;
+            --surface-hover: #2C2C2E;
+            --text: #FFFFFF;
+            --text-muted: #8E8E93;
+            --border: rgba(255, 255, 255, 0.1);
+            --cart-bg: rgba(28, 28, 30, 0.95);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Malgun Gothic", sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* 왼쪽 메뉴 영역 */
+        .menu-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: var(--bg);
+        }
+
+        header {
+            padding: 24px 40px 16px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-orders {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 600;
+            font-size: 15px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-orders:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .table-info {
+            background: rgba(255, 59, 48, 0.15);
+            color: var(--primary);
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 18px;
+            border: 1px solid rgba(255, 59, 48, 0.3);
+            letter-spacing: 1px;
+        }
+
+        .categories {
+            display: flex;
+            gap: 12px;
+            padding: 20px 40px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            background: var(--bg);
+        }
+
+        .categories::-webkit-scrollbar {
+            display: none;
+        }
+
+        .category-btn {
+            padding: 14px 32px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .category-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+        }
+
+        .category-btn.active {
+            background: var(--text);
+            color: var(--bg);
+            border-color: var(--text);
+        }
+
+        .menu-grid {
+            padding: 10px 40px 40px 40px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 28px;
+            overflow-y: auto;
+            flex: 1;
+            align-content: start;
+            padding-bottom: 100px;
+        }
+
+        .menu-grid::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .menu-grid::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .menu-grid::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        /* 클래식 카드 스타일 */
+        .menu-card {
+            background: var(--surface);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.1s;
+            height: 100%;
+            min-height: 380px;
+        }
+
+        .menu-card:active {
+            transform: scale(0.97);
+            border-color: var(--primary);
+        }
+
+        .card-img-wrapper {
+            width: 100%;
+            height: 220px;
+            min-height: 220px;
+            flex-shrink: 0;
+            background: #2C2C2E;
+        }
+
+        .menu-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .menu-info {
+            padding: 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .menu-name {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+            line-height: 1.3;
+        }
+
+        .menu-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin: 0 0 16px 0;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .menu-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+
+        .menu-price {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .add-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            pointer-events: none;
+            /* Let card handle click */
+        }
+
+        .menu-card:hover .add-btn {
+            background: var(--text);
+            color: var(--bg);
+        }
+
+        /* 오른쪽 장바구니 영역 */
+        .cart-section {
+            width: 360px;
+            background: var(--surface);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            z-index: 20;
+        }
+
+        .cart-header {
+            padding: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
+        }
+
+        .cart-title {
+            font-size: 20px;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .cart-count {
+            background: var(--primary);
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-left: 8px;
+        }
+
+        .clear-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .clear-btn:hover {
+            color: var(--text);
+            text-decoration: underline;
+        }
+
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .cart-items::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .cart-items::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+        }
+
+        .cart-empty {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+        }
+
+        .cart-empty svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .cart-item {
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            margin-bottom: 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        .item-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .item-name {
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .item-price {
+            color: var(--text);
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .item-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px dashed rgba(255, 255, 255, 0.1);
+            padding-top: 12px;
+        }
+
+        .item-controls-btns {
+            display: flex;
+            align-items: center;
+            background: var(--surface);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .qty-btn {
+            width: 36px;
+            height: 36px;
+            background: transparent;
+            color: var(--text);
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .qty-btn:active {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .qty-text {
+            font-weight: 700;
+            width: 36px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .cart-footer {
+            padding: 24px;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .total-label {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .total-amount {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .order-btn {
+            width: 100%;
+            background: var(--text);
+            color: var(--bg);
+            border: none;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .order-btn:hover:not(:disabled) {
+            opacity: 0.9;
+        }
+
+        .order-btn:disabled {
+            background: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.5);
+            cursor: not-allowed;
+        }
+
+        /* Order Animation overlay */
+        .order-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .order-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .order-success-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            transform: scale(0.9);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .order-overlay.active .order-success-card {
+            transform: scale(1);
+        }
+
+        .check-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 40px;
+            background: rgba(48, 209, 88, 0.15);
+            color: #30D158;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px auto;
+        }
+
+        .check-circle svg {
+            width: 40px;
+            height: 40px;
+            stroke-width: 3;
+        }
+
+        .order-number {
+            font-size: 36px;
+            font-weight: 900;
+            margin: 10px 0 20px 0;
+            color: var(--primary);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="menu-section">
+        <header>
+            <div class="brand">
+                <h1>SBS구내식당</h1>
+                <a href="customer-orders.html" class="nav-orders">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    주문 내역
+                </a>
+            </div>
+            <div class="table-info">테이블 <span id="tableDisplay">12</span></div>
+        </header>
+
+        <div class="categories" id="categoryContainer">
+            <button class="category-btn active" onclick="filterCategory('전체', this)">전체</button>
+            <button class="category-btn" onclick="filterCategory('시그니처', this)">시그니처</button>
+            <button class="category-btn" onclick="filterCategory('스테이크', this)">스테이크</button>
+            <button class="category-btn" onclick="filterCategory('스타터', this)">스타터</button>
+            <button class="category-btn" onclick="filterCategory('음료/주류', this)">음료/주류</button>
+        </div>
+
+        <div class="menu-grid" id="menuGrid">
+            <!-- JS로 렌더링 -->
+        </div>
+    </div>
+
+    <div class="cart-section">
+        <div class="cart-header">
+            <h2 class="cart-title">장바구니 <span class="cart-count" id="cartCount">0</span></h2>
+            <button class="clear-btn" onclick="clearCart()">전체 삭제</button>
+        </div>
+
+        <div class="cart-items" id="cartItems">
+            <!-- JS로 렌더링 -->
+        </div>
+
+        <div class="cart-footer">
+            <div class="total-row">
+                <span class="total-label">총 결제 예상 금액</span>
+                <span class="total-amount" id="totalAmount">0원</span>
+            </div>
+            <button class="order-btn" id="orderBtn" disabled onclick="placeOrder()">
+                주문하기
+            </button>
+        </div>
+    </div>
+
+    <!-- 성공 모델 애니메이션 -->
+    <div class="order-overlay" id="successOverlay">
+        <div class="order-success-card">
+            <div class="check-circle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            </div>
+            <h2 style="margin:0 0 10px 0; font-size:24px;">주문이 완료되었습니다</h2>
+            <p style="color:var(--text-muted); margin:0;">고객님의 주문 번호</p>
+            <div class="order-number">A-001</div>
+            <p style="color:var(--text-muted); margin:0; font-size:14px;">잠시 후 메뉴 화면으로 돌아갑니다...</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('tableDisplay').innerText = sessionStorage.getItem('tableNo') || '12';
+
+        const menus = [
+            { id: 1, category: '시그니처', name: '드라이 에이징 립아이', price: 85000, desc: '45일 교차 숙성한 최상급 립아이. 트러플 버터 제공.', img: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?auto=format&fit=crop&w=600&q=80' },
+            { id: 2, category: '시그니처', name: '트러플 버섯 파스타', price: 28000, desc: '수제 페투치니, 야생 버섯, 파르미지아노 레지아노, 생 블랙 트러플.', img: 'https://images.unsplash.com/photo-1645112411341-6c4fd023714a?auto=format&fit=crop&w=600&q=80' },
+            { id: 3, category: '스테이크', name: '랍스터 테일 & 필레', price: 95000, desc: '8oz 안심 스테이크와 버터 포치 메인 랍스터 테일.', img: 'https://images.unsplash.com/photo-1544025162-811ccecead18?auto=format&fit=crop&w=600&q=80' },
+            { id: 7, category: '스테이크', name: '토마호크 스테이크 (2인)', price: 155000, desc: '32oz 뼈 있는 립아이, 갈릭 허브 버터를 곁들인 직화 구이.', img: 'https://images.unsplash.com/photo-1594046243098-0fceea9d451e?auto=format&fit=crop&w=600&q=80' },
+            { id: 4, category: '스타터', name: '부라타 샐러드', price: 22000, desc: '신선한 부라타, 에어룸 토마토, 바질 페스토, 발사믹 리덕션.', img: 'https://images.unsplash.com/photo-1529312266912-b33cfce2eefd?auto=format&fit=crop&w=600&q=80' },
+            { id: 8, category: '스타터', name: '비프 타르타르', price: 26000, desc: '수제 안심 타르타르, 메추리알, 케이퍼, 구운 브리오슈.', img: 'https://images.unsplash.com/photo-1550304943-4f24f54ddde9?auto=format&fit=crop&w=600&q=80' },
+            { id: 5, category: '음료/주류', name: '까베르네 소비뇽 (글라스)', price: 15000, desc: '나파 밸리, 2018. 부드러운 타닌의 다크 프루트 향.', img: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&w=600&q=80' },
+            { id: 6, category: '음료/주류', name: '클래식 티라미수', price: 12000, desc: '에스프레소에 적신 레이디핑거와 마스카포네 치즈의 조화.', img: 'https://images.unsplash.com/photo-1571115177098-24ec42ed204d?auto=format&fit=crop&w=600&q=80' }
+        ];
+
+        let cart = [];
+        let currentFilter = '전체';
+
+        function formatPrice(price) {
+            return price.toLocaleString();
+        }
+
+        function filterCategory(cat, btnElement) {
+            currentFilter = cat;
+
+            const btns = document.querySelectorAll('.category-btn');
+            btns.forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+
+            renderMenus();
+        }
+
+        function renderMenus() {
+            const grid = document.getElementById('menuGrid');
+
+            const filteredMenus = currentFilter === '전체'
+                ? menus
+                : menus.filter(m => m.category === currentFilter);
+
+            grid.innerHTML = filteredMenus.map(menu => `
+                <div class="menu-card" onclick="addToCart(${menu.id})">
+                    <div class="card-img-wrapper">
+                        <img src="${menu.img}" alt="${menu.name}" class="menu-img">
+                    </div>
+                    <div class="menu-info">
+                        <h3 class="menu-name">${menu.name}</h3>
+                        <p class="menu-desc">${menu.desc}</p>
+                        <div class="menu-bottom">
+                            <span class="menu-price">${formatPrice(menu.price)}원</span>
+                            <button class="add-btn">담기</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderCart() {
+            const cartContainer = document.getElementById('cartItems');
+            const totalAmountEl = document.getElementById('totalAmount');
+            const orderBtn = document.getElementById('orderBtn');
+            const cartCountEl = document.getElementById('cartCount');
+
+            if (cart.length === 0) {
+                cartContainer.innerHTML = `
+                    <div class="cart-empty">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                        <span>장바구니가 비어있습니다</span>
+                    </div>`;
+                totalAmountEl.innerText = '0원';
+                cartCountEl.innerText = '0';
+                cartCountEl.style.display = 'none';
+                orderBtn.disabled = true;
+                return;
+            }
+
+            let total = 0;
+            let count = 0;
+            cartContainer.innerHTML = cart.map(item => {
+                total += item.price * item.qty;
+                count += item.qty;
+                return `
+                <div class="cart-item">
+                    <div class="item-info">
+                        <span class="item-name">${item.name}</span>
+                        <span class="item-price">${formatPrice(item.price * item.qty)}원</span>
+                    </div>
+                    <div class="item-controls">
+                        <button class="clear-btn" style="font-size:13px; color:var(--primary)" onclick="removeCartItem(${item.id})">삭제</button>
+                        <div class="item-controls-btns">
+                            <button class="qty-btn" onclick="updateQty(${item.id}, -1)">-</button>
+                            <span class="qty-text">${item.qty}</span>
+                            <button class="qty-btn" onclick="updateQty(${item.id}, 1)">+</button>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+            totalAmountEl.innerText = formatPrice(total) + '원';
+            cartCountEl.innerText = count;
+            cartCountEl.style.display = 'inline-block';
+            orderBtn.disabled = false;
+        }
+
+        function addToCart(id) {
+            const menu = menus.find(m => m.id === id);
+            const exist = cart.find(c => c.id === id);
+            if (exist) {
+                exist.qty += 1;
+            } else {
+                cart.push({ ...menu, qty: 1 });
+            }
+            renderCart();
+        }
+
+        function updateQty(id, change) {
+            const item = cart.find(c => c.id === id);
+            if (item) {
+                item.qty += change;
+                if (item.qty <= 0) {
+                    cart = cart.filter(c => c.id !== id);
+                }
+            }
+            renderCart();
+        }
+
+        function removeCartItem(id) {
+            cart = cart.filter(c => c.id !== id);
+            renderCart();
+        }
+
+        function clearCart() {
+            if (confirm('장바구니를 모두 지우시겠습니까?')) {
+                cart = [];
+                renderCart();
+            }
+        }
+
+        function placeOrder() {
+            const btn = document.getElementById('orderBtn');
+            btn.innerHTML = '주문 처리 중...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                const modal = document.getElementById('successOverlay');
+                modal.classList.add('active');
+
+                const tableStr = document.getElementById('tableDisplay').innerText;
+                const orderData = {
+                    orderNo: 'T' + tableStr + '-' + Math.floor(Math.random() * 1000),
+                    time: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
+                    items: [...cart],
+                    total: cart.reduce((acc, cur) => acc + (cur.price * cur.qty), 0),
+                    status: '대기중'
+                };
+
+                let pastOrders = JSON.parse(localStorage.getItem('table_orders') || '[]');
+                pastOrders.unshift(orderData);
+                localStorage.setItem('table_orders', JSON.stringify(pastOrders));
+
+                document.querySelector('.order-number').innerText = orderData.orderNo;
+
+                cart = [];
+                renderCart();
+                btn.innerHTML = '주문하기';
+
+                setTimeout(() => {
+                    modal.classList.remove('active');
+                }, 3000);
+            }, 600);
+        }
+
+        renderMenus();
+        renderCart();
+    </script>
+</body>
+
+</html>

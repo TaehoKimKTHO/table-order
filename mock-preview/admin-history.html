@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 - 과거 내역</title>
+    <style>
+        :root {
+            --primary: #FF3B30;
+            --bg: #F2F2F7;
+            --surface: #FFFFFF;
+            --surface-hover: #F9F9F9;
+            --text: #1C1C1E;
+            --text-muted: #8E8E93;
+            --border: #E5E5EA;
+            --sidebar-width: 260px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Malgun Gothic", sans-serif;
+            margin: 0;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Sidebar 재사용 */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            z-index: 20;
+        }
+
+        .logo {
+            padding: 30px;
+            font-size: 20px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+            letter-spacing: -0.5px;
+        }
+
+        .logo svg {
+            stroke: var(--primary);
+        }
+
+        .nav-menu {
+            padding: 24px 16px;
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 20px;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .nav-item.active {
+            background: rgba(255, 59, 48, 0.1);
+            color: var(--primary);
+        }
+
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: var(--bg);
+        }
+
+        .header {
+            background: var(--surface);
+            padding: 24px 40px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .filters {
+            margin-top: 24px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        input[type="date"],
+        select {
+            padding: 12px 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 10px;
+            outline: none;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        select {
+            appearance: none;
+            padding-right: 40px;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238E8E93' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+        }
+
+        .btn-search {
+            padding: 12px 24px;
+            background: var(--text);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-search:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .content-body {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .content-body::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .content-body::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            border: 2px solid var(--bg);
+        }
+
+        .history-card {
+            background: var(--surface);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            overflow: hidden;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .history-table th {
+            padding: 16px 24px;
+            background: #FAFAFA;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .history-table td {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+
+        .history-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .session-id {
+            font-family: monospace;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .tbl-badge {
+            display: inline-block;
+            background: rgba(255, 59, 48, 0.1);
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .time-box {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .duration {
+            display: inline-block;
+            margin-top: 6px;
+            font-size: 12px;
+            color: var(--text-muted);
+            background: #F2F2F7;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .total-badge {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .menu-summary {
+            margin-top: 8px;
+            color: var(--text-muted);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="3" y1="9" x2="21" y2="9"></line>
+                <line x1="9" y1="21" x2="9" y2="9"></line>
+            </svg>
+            관리자 파트너스
+        </div>
+        <nav class="nav-menu">
+            <a href="admin-dashboard.html" class="nav-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                실시간 주문 현황
+            </a>
+            <a href="admin-history.html" class="nav-item active">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                </svg>
+                과거 세션 기록
+            </a>
+            <a href="admin-menu.html" class="nav-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                </svg>
+                메뉴 정보 관리
+            </a>
+        </nav>
+        <div class="store-info">
+            <div style="font-weight: 600;">STR_001 · SBS구내식당</div>
+            <div style="opacity:0.6; margin-top:8px;">로그인 계정 : admin_01</div>
+        </div>
+    </aside>
+    <main class="main">
+        <header class="header">
+            <h1>이전 테이블 내역</h1>
+            <div class="filters">
+                <input type="date" value="2026-03-09">
+                <select>
+                    <option value="">모든 테이블</option>
+                    <option value="12">Table 12</option>
+                    <option value="5">Table 05</option>
+                    <option value="8">Table 08</option>
+                </select>
+                <button class="btn-search">기록 검색</button>
+            </div>
+        </header>
+        <div class="content-body">
+            <div class="history-card">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>세션 ID</th>
+                            <th>테이블</th>
+                            <th>시간 및 이용 시간</th>
+                            <th>주문 내역 요약</th>
+                            <th>최종 결제 금액</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="session-id">S-9A02F1</span></td>
+                            <td><span class="tbl-badge">TABLE 12</span></td>
+                            <td class="time-box">
+                                14:30 ~ 15:20<br>
+                                <span class="duration">50분</span>
+                            </td>
+                            <td>
+                                <div style="font-weight: 600">총 3건 주문</div>
+                                <div class="menu-summary">드라이 에이징 립아이 x1<br>트러플 버섯 파스타 x1<br>까베르네 소비뇽 x2</div>
+                            </td>
+                            <td><span class="total-badge">143,000원</span></td>
+                        </tr>
+                        <tr>
+                            <td><span class="session-id">S-8B11E4</span></td>
+                            <td><span class="tbl-badge">TABLE 05</span></td>
+                            <td class="time-box">
+                                13:10 ~ 14:05<br>
+                                <span class="duration">55분</span>
+                            </td>
+                            <td>
+                                <div style="font-weight: 600">총 2건 주문</div>
+                                <div class="menu-summary">부라타 샐러드 x1<br>클래식 티라미수 x2</div>
+                            </td>
+                            <td><span class="total-badge">46,000원</span></td>
+                        </tr>
+                        <tr>
+                            <td><span class="session-id">S-7C44D2</span></td>
+                            <td><span class="tbl-badge">TABLE 08</span></td>
+                            <td class="time-box">
+                                12:45 ~ 13:30<br>
+                                <span class="duration">45분</span>
+                            </td>
+                            <td>
+                                <div style="font-weight: 600">총 1건 주문</div>
+                                <div class="menu-summary">랍스터 테일 & 필레 x1<br>까베르네 소비뇽 x2</div>
+                            </td>
+                            <td><span class="total-badge">125,000원</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>
