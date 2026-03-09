@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 대시보드 - 실시간 주문</title>
+    <style>
+        :root {
+            --primary: #FF3B30;
+            --bg: #F2F2F7;
+            --surface: #FFFFFF;
+            --surface-hover: #F9F9F9;
+            --text: #1C1C1E;
+            --text-muted: #8E8E93;
+            --border: #E5E5EA;
+            --status-wait: #FF3B30;
+            --status-prep: #0A84FF;
+            --status-done: #30D158;
+            --sidebar-width: 260px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Malgun Gothic", sans-serif;
+            margin: 0;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            z-index: 20;
+        }
+
+        .logo {
+            padding: 30px;
+            font-size: 20px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+            letter-spacing: -0.5px;
+        }
+
+        .logo svg {
+            stroke: var(--primary);
+        }
+
+        .nav-menu {
+            padding: 24px 16px;
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 20px;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .nav-item.active {
+            background: rgba(255, 59, 48, 0.1);
+            color: var(--primary);
+        }
+
+        .store-info {
+            padding: 24px;
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--text-muted);
+            background: #FAFAFA;
+        }
+
+        .store-info div {
+            margin-bottom: 4px;
+        }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: var(--bg);
+        }
+
+        .header {
+            background: var(--surface);
+            padding: 24px 40px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .status-indicators {
+            display: flex;
+            gap: 24px;
+        }
+
+        .indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .content-body {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        /* Grid Layout */
+        .table-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 24px;
+            padding-bottom: 40px;
+        }
+
+        .content-body::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .content-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .content-body::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            border: 2px solid var(--bg);
+        }
+
+        .table-card {
+            background: var(--surface);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .table-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        .table-card.new-order {
+            animation: pulse-border 2.5s infinite;
+        }
+
+        @keyframes pulse-border {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.2);
+                border-color: var(--status-wait);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 59, 48, 0);
+                border-color: var(--border);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 59, 48, 0);
+                border-color: var(--border);
+            }
+        }
+
+        .table-header {
+            padding: 20px 24px;
+            background: #FAFAFA;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-no {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .table-no::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        .table-total {
+            font-weight: 800;
+            font-size: 20px;
+            color: var(--text);
+        }
+
+        .order-list {
+            padding: 0;
+            flex: 1;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        .order-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .order-list::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 6px;
+        }
+
+        .order-group {
+            border-bottom: 1px dashed var(--border);
+            padding: 16px 24px;
+        }
+
+        .order-group:last-child {
+            border-bottom: none;
+        }
+
+        .order-top {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .menu-items {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .individual-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg);
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .individual-item-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .item-qty {
+            background: var(--surface);
+            color: var(--text);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 800;
+            border: 1px solid var(--border);
+        }
+
+        .item-name {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .item-status-btn {
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .status-wait {
+            background: rgba(255, 59, 48, 0.1);
+            color: var(--status-wait);
+        }
+
+        .status-prep {
+            background: rgba(10, 132, 255, 0.1);
+            color: var(--status-prep);
+        }
+
+        .status-done {
+            background: rgba(48, 209, 88, 0.1);
+            color: var(--status-done);
+        }
+
+        .table-actions {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+            background: var(--surface);
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-outline {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-outline:hover {
+            background: #FAFAFA;
+        }
+
+        .btn-done {
+            background: var(--text);
+            color: #FFFFFF;
+        }
+
+        .btn-done:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+
+<body>
+
+    <aside class="sidebar">
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="3" y1="9" x2="21" y2="9"></line>
+                <line x1="9" y1="21" x2="9" y2="9"></line>
+            </svg>
+            관리자 파트너스
+        </div>
+        <nav class="nav-menu">
+            <a href="admin-dashboard.html" class="nav-item active">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                실시간 주문 현황
+            </a>
+            <a href="admin-history.html" class="nav-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                </svg>
+                과거 세션 기록
+            </a>
+            <a href="admin-menu.html" class="nav-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                </svg>
+                메뉴 정보 관리
+            </a>
+        </nav>
+        <div class="store-info">
+            <div style="font-weight: 600;">STR_001 · SBS구내식당</div>
+            <div style="opacity:0.6; margin-top:8px;">로그인 계정 : admin_01</div>
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="header">
+            <h1>전체 매장 현황</h1>
+            <div class="status-indicators">
+                <div class="indicator">
+                    <div class="dot" style="background: var(--status-wait)"></div> 주문 수락 대기
+                </div>
+                <div class="indicator">
+                    <div class="dot" style="background: var(--status-prep)"></div> 주방 조리중
+                </div>
+                <div class="indicator">
+                    <div class="dot" style="background: var(--status-done)"></div> 서빙 완료
+                </div>
+            </div>
+        </header>
+
+        <div class="content-body">
+            <div class="table-grid">
+
+                <!-- Table 12 -->
+                <div class="table-card new-order">
+                    <div class="table-header">
+                        <span class="table-no">Table 12</span>
+                        <span class="table-total">85,000원</span>
+                    </div>
+                    <div class="order-list">
+                        <div class="order-group">
+                            <div class="order-top">
+                                <span>주문번호 #A-024</span>
+                                <span>15:30</span>
+                            </div>
+                            <div class="menu-items">
+                                <div class="individual-item">
+                                    <div class="individual-item-info">
+                                        <span class="item-qty">1</span>
+                                        <span class="item-name">드라이 에이징 립아이</span>
+                                    </div>
+                                    <button class="item-status-btn status-wait" onclick="cycleStatus(this)">대기중</button>
+                                </div>
+                                <div class="individual-item">
+                                    <div class="individual-item-info">
+                                        <span class="item-qty">2</span>
+                                        <span class="item-name">까베르네 소비뇽</span>
+                                    </div>
+                                    <button class="item-status-btn status-prep" onclick="cycleStatus(this)">조리중</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-actions">
+                        <button class="btn btn-outline" onclick="alert('테이블 재설정 / 세션 강제종료 메뉴')">세션 관리</button>
+                        <button class="btn btn-done" onclick="finishTable(this)">결제 및 테이블 비우기</button>
+                    </div>
+                </div>
+
+                <!-- Table 05 -->
+                <div class="table-card">
+                    <div class="table-header">
+                        <span class="table-no">Table 05</span>
+                        <span class="table-total">50,000원</span>
+                    </div>
+                    <div class="order-list">
+                        <div class="order-group">
+                            <div class="order-top">
+                                <span>주문번호 #A-022</span>
+                                <span>15:20</span>
+                            </div>
+                            <div class="menu-items">
+                                <div class="individual-item">
+                                    <div class="individual-item-info">
+                                        <span class="item-qty">1</span>
+                                        <span class="item-name">트러플 버섯 파스타</span>
+                                    </div>
+                                    <button class="item-status-btn status-done" onclick="cycleStatus(this)">완료</button>
+                                </div>
+                                <div class="individual-item">
+                                    <div class="individual-item-info">
+                                        <span class="item-qty">1</span>
+                                        <span class="item-name">부라타 샐러드</span>
+                                    </div>
+                                    <button class="item-status-btn status-prep" onclick="cycleStatus(this)">조리중</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-actions">
+                        <button class="btn btn-outline">세션 관리</button>
+                        <button class="btn btn-done" onclick="finishTable(this)">결제 및 테이블 비우기</button>
+                    </div>
+                </div>
+
+                <!-- Table 08 -->
+                <div class="table-card">
+                    <div class="table-header">
+                        <span class="table-no">Table 08</span>
+                        <span class="table-total">12,000원</span>
+                    </div>
+                    <div class="order-list">
+                        <div class="order-group">
+                            <div class="order-top">
+                                <span>주문번호 #A-020</span>
+                                <span>15:10</span>
+                            </div>
+                            <div class="menu-items">
+                                <div class="individual-item">
+                                    <div class="individual-item-info">
+                                        <span class="item-qty">1</span>
+                                        <span class="item-name">클래식 티라미수</span>
+                                    </div>
+                                    <button class="item-status-btn status-done" onclick="cycleStatus(this)">완료</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-actions">
+                        <button class="btn btn-outline">세션 관리</button>
+                        <button class="btn btn-done" onclick="finishTable(this)">결제 및 테이블 비우기</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function cycleStatus(btn) {
+            const current = btn.innerText;
+
+            if (current === '대기중') {
+                btn.className = 'item-status-btn status-prep';
+                btn.innerText = '조리중';
+            } else if (current === '조리중') {
+                btn.className = 'item-status-btn status-done';
+                btn.innerText = '완료';
+            } else if (current === '완료') {
+                // 유저의 요청으로 완료에서는 대기중으로 리버스 금지
+                return;
+            }
+
+            // Effect
+            btn.style.transform = 'scale(0.9)';
+            setTimeout(() => btn.style.transform = 'scale(1)', 150);
+
+            // Remove pulse from table card if all items are done or prep
+            const card = btn.closest('.table-card');
+            if (card.classList.contains('new-order')) {
+                const hasWait = card.querySelectorAll('.status-wait').length > 0;
+                if (!hasWait) {
+                    card.classList.remove('new-order');
+                }
+            }
+        }
+
+        function finishTable(btn) {
+            if (confirm('이 테이블의 결제를 완료하고 세션을 종료하시겠습니까?\n내역은 과거 로그로 이관되며, 테이블은 즉시 비워집니다.')) {
+                const card = btn.closest('.table-card');
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.9) translateY(20px)';
+                setTimeout(() => {
+                    card.remove();
+                }, 300);
+            }
+        }
+    </script>
+</body>
+
+</html>

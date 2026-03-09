@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 로그인</title>
+    <style>
+        :root {
+            --primary: #FF3B30;
+            --bg: #F2F2F7;
+            --surface: #FFFFFF;
+            --text: #1C1C1E;
+            --text-muted: #8E8E93;
+            --border: #E5E5EA;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Malgun Gothic", sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background-image: radial-gradient(circle at 50% -20%, rgba(255, 59, 48, 0.05) 0%, transparent 60%);
+        }
+
+        .login-card {
+            background: var(--surface);
+            padding: 48px;
+            border-radius: 32px;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideUpFade {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .icon {
+            font-size: 56px;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, #FF3B30, #FF9500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        h1 {
+            margin: 0 0 12px 0;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        p {
+            color: var(--text-muted);
+            margin: 0 0 40px 0;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .input-group {
+            text-align: left;
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #8E8E93;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        input {
+            width: 100%;
+            padding: 16px 20px;
+            background: #F2F2F7;
+            border: 1px solid transparent;
+            border-radius: 16px;
+            color: var(--text);
+            font-size: 16px;
+            font-weight: 500;
+            box-sizing: border-box;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            background: #FFFFFF;
+            box-shadow: 0 0 0 4px rgba(255, 59, 48, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 18px;
+            background: var(--text);
+            color: #FFFFFF;
+            border: none;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        button:active {
+            transform: scale(0.97);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-card">
+        <div class="icon">⌘</div>
+        <h1>관리자 파트너스</h1>
+        <p>매장 시스템 관리를 위해 로그인해주세요.</p>
+
+        <form onsubmit="handleLogin(event)">
+            <div class="input-group">
+                <label for="storeId">매장 코드</label>
+                <input type="text" id="storeId" placeholder="예: STR-001" required value="STR-001">
+            </div>
+
+            <div class="input-group">
+                <label for="adminId">관리자 아이디</label>
+                <input type="text" id="adminId" placeholder="아이디 입력" required value="admin">
+            </div>
+
+            <div class="input-group">
+                <label for="adminPw">비밀번호</label>
+                <input type="password" id="adminPw" placeholder="비밀번호 입력" required value="1234">
+            </div>
+
+            <button type="submit">시스템 로그인 (16h 보안유지)</button>
+        </form>
+    </div>
+
+    <script>
+        function handleLogin(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            btn.innerHTML = '<span style="opacity:0.8">인증 진행 중...</span>';
+            btn.disabled = true;
+            btn.style.transform = 'scale(0.98)';
+
+            setTimeout(() => {
+                sessionStorage.setItem('adminAuth', 'true');
+                window.location.href = 'admin-dashboard.html';
+            }, 800);
+        }
+    </script>
+</body>
+
+</html>
