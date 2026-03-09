@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Greenfield
 - **Start Date**: 2026-03-09T00:00:00Z
-- **Current Stage**: CONSTRUCTION - Functional Design (Unit 2: 주문 처리)
+- **Current Stage**: CONSTRUCTION
 
 ## Workspace State
 - **Existing Code**: No
@@ -44,12 +44,12 @@
 - [x] Units Generation - EXECUTE (완료)
 
 ### 🟢 CONSTRUCTION PHASE
-- [-] Functional Design - EXECUTE (Unit 1 완료, Unit 2 완료)
+- [-] Functional Design - EXECUTE (Unit 1 완료, Unit 3 완료, Unit 4 완료)
 - [ ] NFR Requirements - SKIP (소규모 MVP)
 - [ ] NFR Design - SKIP
 - [ ] Infrastructure Design - SKIP (로컬 환경)
-- [ ] Code Generation - EXECUTE
-- [ ] Build and Test - EXECUTE
+- [-] Code Generation - EXECUTE (Unit 3 완료, Unit 4 완료)
+- [x] Build and Test - EXECUTE (완료)
 
 ### 🟡 OPERATIONS PHASE
 - [ ] Operations - PLACEHOLDER
