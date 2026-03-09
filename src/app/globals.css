@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #FF3B30;
+  --color-primary-bg: rgba(255, 59, 48, 0.1);
+  --color-bg: #F2F2F7;
+  --color-surface: #FFFFFF;
+  --color-surface-alt: #FAFAFA;
+  --color-text: #1C1C1E;
+  --color-text-muted: #8E8E93;
+  --color-border: #E5E5EA;
+  --color-status-wait: #FF3B30;
+  --color-status-wait-bg: rgba(255, 59, 48, 0.1);
+  --color-status-prep: #0A84FF;
+  --color-status-prep-bg: rgba(10, 132, 255, 0.1);
+  --color-status-done: #30D158;
+  --color-status-done-bg: rgba(48, 209, 88, 0.1);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Malgun Gothic", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
